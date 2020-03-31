@@ -1,2 +1,2 @@
 - name: reload nftables
-  service: name=nftables state=restarted
+  service: name=nftables state=reloaded
