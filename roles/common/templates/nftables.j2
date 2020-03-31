@@ -1,0 +1,33 @@
+# nftables test
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table inet filter {
+	chain input {
+		type filter hook input priority 0; policy drop;
+
+		iif lo counter accept comment "Accept any localhost traffic"
+
+		ct state invalid counter drop comment "Drop invalid connections"
+
+{% for host in src_hosts %} {% for port in dst_ports %}
+		ip saddr {{ host }} tcp dport {{ port }} ct state established,new counter accept
+{% endfor %} {% endfor %}
+
+		ip saddr 192.168.245.130/32 tcp dport ssh ct state established,new counter accept comment "Allow ssh for ansible deploy node"
+
+		meta l4proto icmp icmp type { destination-unreachable, router-solicitation, router-advertisement, time-exceeded, parameter-problem } counter accept comment "Accept ICMP"
+
+		counter comment "Count any other traffic"
+	}
+
+	chain forward {
+		type filter hook forward priority 0; policy drop;
+	}
+
+	chain output {
+		type filter hook output priority 0; policy accept;
+	}
+
+}

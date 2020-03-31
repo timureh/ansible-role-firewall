@@ -1,0 +1,9 @@
+---
+
+- name: Install Debian packages
+  apt:
+     name:
+      - apt-transport-https
+      - nftables
+     state: present
+     update_cache: yes
