@@ -10,10 +10,12 @@ table inet filter {
 		iif lo counter accept comment "Accept any localhost traffic"
 
 		ct state invalid counter drop comment "Drop invalid connections"
+		
+		ct state established,related accept comment "Accept traffic originated from us"
 
-{% for host in src_hosts %} {% for port in dst_ports %}
+{% for host in src_hosts %}{% for port in dst_ports %}
 		ip saddr {{ host }} tcp dport {{ port }} ct state established,new counter accept
-{% endfor %} {% endfor %}
+{% endfor %}{% endfor %}
 
 		ip saddr 192.168.245.130/32 tcp dport ssh ct state established,new counter accept comment "Allow ssh for ansible deploy node"
 
